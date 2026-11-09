@@ -108,6 +108,26 @@ Si aparece `unauthorized`, desbloquea el móvil y acepta el diálogo de depuraci
 - Para la pantalla y el registro de llamadas realizadas, activa además el rol de teléfono predeterminado. La confirmación de este rol la muestra Android.
 - Las acciones tras una llamada realizada aparecen en una notificación: **Bloquear** guarda el número para futuras llamadas y **Guardar con nombre** abre el formulario de Contactos.
 
+## Reflexión crítica
+
+1. **¿Qué es `CallScreeningService` y qué función cumple en Android?**
+   Es el servicio del framework de Telecom que Android puede invocar para que una aplicación autorizada evalúe una llamada entrante antes de que se atienda. En NoMolesten, `CallFilterService` recibe los datos disponibles de la llamada, evalúa las reglas configuradas y responde a Android si debe permitirla o rechazarla.
+
+2. **¿Por qué necesitamos solicitar el rol `ROLE_CALL_SCREENING`?**
+   Android solo entrega las llamadas al servicio de la aplicación que el usuario haya elegido para el rol de filtrado. La solicitud del rol, que el usuario confirma en la interfaz del sistema, habilita esa integración y evita que una aplicación filtre llamadas sin consentimiento.
+
+3. **¿Por qué no necesitamos un servidor externo para realizar el filtrado?**
+   La decisión se basa en el número recibido y en reglas guardadas localmente. Android entrega la llamada al servicio en el dispositivo y la aplicación calcula allí si coincide con el prefijo; por tanto, el filtrado no necesita conectividad ni enviar números a un servidor.
+
+4. **¿Qué ocurre si el número telefónico está guardado en los contactos?**
+   Si se han importado los contactos y se concedió el permiso correspondiente, NoMolesten puede mostrar el nombre asociado al número. Guardarlo en Contactos no lo convierte automáticamente en una excepción: se aplican las reglas activas y las excepciones configuradas en la aplicación.
+
+5. **¿Qué diferencias existen entre comprobar un número mediante una función y bloquear realmente una llamada?**
+   Una función de comprobación solo analiza el texto de un número y devuelve si coincide con el prefijo; no interviene en Telecom. Para bloquear una llamada real, Android debe entregar una llamada entrante al `CallScreeningService`, la aplicación debe tener el rol autorizado y el servicio debe responder con una acción de rechazo.
+
+6. **¿Qué mejoras incorporarías en una futura versión?**
+   Añadiría pruebas de integración automatizadas en dispositivos compatibles, mejorarían los mensajes de diagnóstico cuando el rol o las restricciones del fabricante impiden filtrar, y permitiría al usuario gestionar reglas y excepciones de forma más sencilla, con explicaciones claras de la privacidad y del tratamiento local de los datos.
+
 ## Privacidad
 
 La agenda importada y el registro se almacenan localmente en el dispositivo. La aplicación no lee conversaciones, mensajes ni integrantes de grupos de WhatsApp.
